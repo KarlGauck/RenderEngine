@@ -1,3 +1,4 @@
+#include <FileInput.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -6,45 +7,116 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
-// settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-int main()
-{
-    // glfw: initialize and configure
-    // ------------------------------
+unsigned int shaderProgram;
+unsigned int vao;
+
+void initGLFW() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-#ifdef __APPLE__
+    #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
+    #endif
+}
 
-    // glfw window creation
-    // --------------------
+GLFWwindow* initWindow() {
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
-        return -1;
+        return nullptr;
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    // glad: load all OpenGL function pointers
-    // ---------------------------------------
+    return window;
+}
+
+int initGlad() {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
-    // render loop
-    // -----------
+    return 0;
+}
+
+void printShaderLog(unsigned int shader) {
+    int  success;
+    char infoLog[512];
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+    if(!success)
+    {
+        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::" << shader << "::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+}
+
+void printShaderProgramLog(unsigned int shaderProgram) {
+    int  success;
+    char infoLog[512];
+    glGetProgramiv(shaderProgram, GL_COMPILE_STATUS, &success);
+
+    if(!success)
+    {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADERPROGRAM::" << shaderProgram << "::LINKING_FAILED\n" << infoLog << std::endl;
+    }
+}
+
+void initGLStructures() {
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+
+    float vertices[] = {
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+         0.0f,  0.5f, 0.0f
+    };
+
+    unsigned int vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    const string vertexCode = FileInput::readFile("../src/shaders/vertex.glsl");
+    const char* vertexSource = vertexCode.c_str();
+    const string fragmentCode = FileInput::readFile("../src/shaders/fragment.glsl");
+    const char* fragmentSource = fragmentCode.c_str();
+
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    glShaderSource(vertexShader, 1, &vertexSource, nullptr);
+    glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
+
+    glCompileShader(vertexShader);
+    printShaderLog(vertexShader);
+    glCompileShader(fragmentShader);
+    printShaderLog(fragmentShader);
+
+    shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+    printShaderProgramLog(shaderProgram);
+
+    unsigned int vertexSize = 3;
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 3*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+}
+
+void loop(GLFWwindow* window) {
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -53,17 +125,37 @@ int main()
 
         // render
         // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
+        //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        //glClear(GL_COLOR_BUFFER_BIT);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glUseProgram(shaderProgram);
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
+}
+
+int main()
+{
+    initGLFW();
+    GLFWwindow* window = initWindow();
+    if (!window)
+        return -1;
+
+    if (initGlad() == -1)
+        return -1;
+
+
+    initGLStructures();
+
+    loop(window);
+
     glfwTerminate();
     return 0;
 }
