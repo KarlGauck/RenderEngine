@@ -1,3 +1,4 @@
+#include <cmath>
 #include <FileInput.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -137,14 +138,14 @@ void loop(GLFWwindow* window) {
 
         // render
         // ------
-        //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        //glClear(GL_COLOR_BUFFER_BIT);
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
+        float timeValue = glfwGetTime();
+        float greenValue = (::sin(timeValue) / 2.0f) + 0.5f;
+        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+        glUseProgram(shaderProgram);
+        glUniform4f(vertexColorLocation, greenValue, greenValue, greenValue, greenValue);
+
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        glUseProgram(shaderProgram);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6,  GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
