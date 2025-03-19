@@ -1,5 +1,5 @@
 #include <cmath>
-#include <FileInput.h>
+#include <fileutils/FileInput.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
