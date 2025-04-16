@@ -21,16 +21,18 @@ class MeshObject
     unsigned int vertex_buffer_object = 0;
     unsigned int element_buffer_object = 0;
 
-    std::shared_ptr<std::vector<Vertex>> vertices = nullptr;
-    std::shared_ptr<std::vector<unsigned int>> indices = nullptr;
+    std::vector<Vertex>& vertices;
+    std::vector<unsigned int>& indices;
 
 public:
-    void set_vertices(const std::shared_ptr<std::vector<Vertex>>& vertices);
-    void set_indices(const std::shared_ptr<std::vector<unsigned int>> indices);
+    MeshObject(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices);
+
+    void set_vertices(std::vector<Vertex>& vertices);
+    void set_indices(std::vector<unsigned int>& indices);
     void set_texture(unsigned int texture_id, Texture& texture);
 
     void create_buffers();
-    void delete_buffers();
+    void delete_buffers() const;
 
     void enable();
     void disable();

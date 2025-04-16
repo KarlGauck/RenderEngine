@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#include "rendering/MeshObject.h"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -13,6 +15,8 @@ const unsigned int SCR_HEIGHT = 600;
 
 unsigned int shaderProgram;
 unsigned int vao;
+
+MeshObject *mesh_object = nullptr;
 
 void initGLFW() {
     glfwInit();
@@ -77,20 +81,30 @@ void initGLStructures() {
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-
-    float vertices[] = {
-        // first
-         0.5f,  0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        -0.5f,  0.5f, 0.0f
+    std::vector<Vertex> vertices {
+        Vertex(
+            0.5f,  0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+        ),
+        Vertex(
+            0.5f, -0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+        ),
+        Vertex(
+            -0.5f, -0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+        ),
+        Vertex(
+            -0.5f,  0.5f, 0.0f,  1.f, 1.f, 1.f, 0.f, 0.f
+        ),
     };
 
-    unsigned int indices[] {
+    std::vector<unsigned int> indices {
         0, 1, 3,
         1, 2, 3
     };
 
+    mesh_object = new MeshObject(vertices, indices);
+    mesh_object->create_buffers();
+
+    /*
     unsigned int vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -100,7 +114,7 @@ void initGLStructures() {
     glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
+*/
     const string vertexCode = FileInput::readFile("../src/shaders/vertex.glsl");
     const char* vertexSource = vertexCode.c_str();
     const string fragmentCode = FileInput::readFile("../src/shaders/fragment.glsl");
@@ -123,9 +137,11 @@ void initGLStructures() {
     glLinkProgram(shaderProgram);
     printShaderProgramLog(shaderProgram);
 
+/*
     unsigned int vertexSize = 3;
     glVertexAttribPointer(0, 3, GL_FLOAT, false, 3*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    */
 
 }
 
@@ -146,7 +162,8 @@ void loop(GLFWwindow* window) {
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        glBindVertexArray(vao);
+        mesh_object->enable();
+//        glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6,  GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
         glfwPollEvents();
