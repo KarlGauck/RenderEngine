@@ -17,6 +17,9 @@ add_executable(RenderEngine src/main.cpp lib/glad/src/glad.c
         include/rendering/MeshObject.h
         include/rendering/Texture.h
         include/rendering/ShaderProgram.h
-        src/rendering/MeshObject.cpp)
+        src/rendering/MeshObject.cpp
+        src/rendering/ShaderProgram.cpp
+        src/rendering/ShaderProgram.cpp
+)
 
 target_link_libraries(RenderEngine glfw)

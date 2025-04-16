@@ -1,4 +1,3 @@
-
 #ifndef SHADERPROGRAM_H
 #define SHADERPROGRAM_H
 
@@ -9,11 +8,18 @@
 
 class ShaderProgram
 {
+    std::string vertexPath;
+    std::string fragmentPath;
+
+    unsigned int program;
+
+    void print_shader_program_log(unsigned int shaderProgram);
+    void print_shader_log(unsigned int shader);
+
 public:
-    void set_vertex_shader(std::string shader_path);
-    void set_fragment_shader(std::string shader_path);
+    ShaderProgram(const std::string& vertex_path, const std::string& fragment_path);
 
-    void set_mesh(MeshObject& mesh_object);
+    void create_gl_program();
 
-    void render();
+    void render(MeshObject& mesh_object);
 };
