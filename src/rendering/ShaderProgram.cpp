@@ -8,14 +8,19 @@
 #include <iostream>
 #include <cmath>
 
-ShaderProgram::ShaderProgram(const std::string& vertex_path, const std::string& fragment_path):
-    fragmentPath(fragmentPath), vertexPath(vertexPath){}
+ShaderProgram::ShaderProgram(const std::string& vertex_path, const std::string& fragment_path) {
+    this->vertexPath = vertex_path;
+    this->fragmentPath = fragment_path;
+}
 
 void ShaderProgram::create_gl_program() {
 
-const std::string vertexCode = FileInput::readFile("../src/shaders/vertex.glsl");
+    const std::string vertexCode = FileInput::readFile(vertexPath);
+    std::cout << vertexPath << std::endl;
+    std::cout << "vertex: " << vertexCode << std::endl;
     const char* vertexSource = vertexCode.c_str();
-    const string fragmentCode = FileInput::readFile("../src/shaders/fragment.glsl");
+    const string fragmentCode = FileInput::readFile(fragmentPath);
+    std::cout << "fragment: " << fragmentCode << std::endl;
     const char* fragmentSource = fragmentCode.c_str();
 
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
