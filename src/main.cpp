@@ -3,6 +3,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+# include <stb_image.h>
+
 #include <iostream>
 
 #include "rendering/ShaderProgram.h"
@@ -64,16 +67,16 @@ void initGLStructures() {
 
     std::vector<Vertex> vertices {
         Vertex(
-            0.5f,  0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+            0.5f,  0.5f, 0.0f, 1.f, 0.f, 0.f, 1.f, 0.f
         ),
         Vertex(
-            0.5f, -0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+            0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 1.f, 1.f
         ),
         Vertex(
-            -0.5f, -0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+            -0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 0.f, 1.f
         ),
         Vertex(
-            -0.5f,  0.5f, 0.0f,  1.f, 1.f, 1.f, 0.f, 0.f
+            -0.5f,  0.5f, 0.0f,  1.f, 0.f, 0.f, 0.f, 0.f
         ),
     };
 
@@ -88,6 +91,34 @@ void initGLStructures() {
     shader_program = new ShaderProgram("../src/shaders/vertex.glsl",
         "../src/shaders/fragment.glsl");
     shader_program->create_gl_program();
+
+    // Set texture out of bounds behaviour
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+    // Set border color (in case of border-color border-behaviour)
+    float border_color[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color);
+
+    // Texture filtering (interpolation)
+
+    // Mipmap filtering method (and mipmap filtering (only in min filter))
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int width, height, channels;
+    unsigned char* data = stbi_load("../assets/textures/ancient_debris.png", &width, &height, &channels, 0);
+
+    unsigned int texture;
+    glGenTextures(1, &texture);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data);
+
 }
 
 void loop(GLFWwindow* window) {
