@@ -1,9 +1,11 @@
 #include <cmath>
-#include <FileInput.h>
+#include <fileutils/FileInput.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+
+#include "rendering/ShaderProgram.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -13,6 +15,9 @@ const unsigned int SCR_HEIGHT = 600;
 
 unsigned int shaderProgram;
 unsigned int vao;
+
+MeshObject *mesh_object = nullptr;
+ShaderProgram *shader_program = nullptr;
 
 void initGLFW() {
     glfwInit();
@@ -49,109 +54,52 @@ int initGlad() {
     return 0;
 }
 
-void printShaderLog(unsigned int shader) {
-    int  success;
-    char infoLog[512];
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
-    if(!success)
-    {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::" << shader << "::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-}
 
-void printShaderProgramLog(unsigned int shaderProgram) {
-    int  success;
-    char infoLog[512];
-    glGetProgramiv(shaderProgram, GL_COMPILE_STATUS, &success);
 
-    if(!success)
-    {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADERPROGRAM::" << shaderProgram << "::LINKING_FAILED\n" << infoLog << std::endl;
-    }
-}
 
 void initGLStructures() {
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-
-    float vertices[] = {
-        // first
-         0.5f,  0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        -0.5f,  0.5f, 0.0f
+    std::vector<Vertex> vertices {
+        Vertex(
+            0.5f,  0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+        ),
+        Vertex(
+            0.5f, -0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+        ),
+        Vertex(
+            -0.5f, -0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+        ),
+        Vertex(
+            -0.5f,  0.5f, 0.0f,  1.f, 1.f, 1.f, 0.f, 0.f
+        ),
     };
 
-    unsigned int indices[] {
+    std::vector<unsigned int> indices {
         0, 1, 3,
         1, 2, 3
     };
 
-    unsigned int vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    mesh_object = new MeshObject(vertices, indices);
+    mesh_object->create_buffers();
 
-    unsigned int ebo;
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    const string vertexCode = FileInput::readFile("../src/shaders/vertex.glsl");
-    const char* vertexSource = vertexCode.c_str();
-    const string fragmentCode = FileInput::readFile("../src/shaders/fragment.glsl");
-    const char* fragmentSource = fragmentCode.c_str();
-
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    glShaderSource(vertexShader, 1, &vertexSource, nullptr);
-    glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
-
-    glCompileShader(vertexShader);
-    printShaderLog(vertexShader);
-    glCompileShader(fragmentShader);
-    printShaderLog(fragmentShader);
-
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    printShaderProgramLog(shaderProgram);
-
-    unsigned int vertexSize = 3;
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 3*sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
+    shader_program = new ShaderProgram("../src/shaders/vertex.glsl",
+        "../src/shaders/fragment.glsl");
+    shader_program->create_gl_program();
 }
 
 void loop(GLFWwindow* window) {
     while (!glfwWindowShouldClose(window))
     {
-        // input
-        // -----
         processInput(window);
 
-        // render
-        // ------
-        float timeValue = glfwGetTime();
-        float greenValue = (::sin(timeValue) / 2.0f) + 0.5f;
-        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-        glUseProgram(shaderProgram);
-        glUniform4f(vertexColorLocation, greenValue, greenValue, greenValue, greenValue);
+        shader_program->render(*mesh_object);
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, 6,  GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
 }
 
 int main()

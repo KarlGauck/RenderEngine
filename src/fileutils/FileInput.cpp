@@ -5,7 +5,7 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
-#include "FileInput.h"
+#include "fileutils/FileInput.h"
 
 string FileInput::readFile(const string &filePath) {
     ifstream stream(filePath);

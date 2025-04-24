@@ -1,14 +1,10 @@
-//
-// Created by karlg on 18.03.25.
-//
-
 #ifndef FILEINPUT_H
 #define FILEINPUT_H
 
+#include <string>
+
 #endif //FILEINPUT_H
 
-#include <iostream>
-#include <string>
 
 using namespace std;
 
