@@ -3,6 +3,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+# include <stb_image.h>
+
 #include <iostream>
 
 #include "rendering/ShaderProgram.h"
@@ -64,16 +67,16 @@ void initGLStructures() {
 
     std::vector<Vertex> vertices {
         Vertex(
-            0.5f,  0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+            0.5f,  0.5f, 0.0f, 1.f, 0.f, 0.f, 2.f, 2.f
         ),
         Vertex(
-            0.5f, -0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+            0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 2.f, 0.f
         ),
         Vertex(
-            -0.5f, -0.5f, 0.0f, 1.f, 1.f, 1.f, 0.f, 0.f
+            -0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 0.f, 0.f
         ),
         Vertex(
-            -0.5f,  0.5f, 0.0f,  1.f, 1.f, 1.f, 0.f, 0.f
+            -0.5f,  0.5f, 0.0f,  1.f, 0.f, 0.f, 0.f, 2.f
         ),
     };
 
@@ -88,6 +91,27 @@ void initGLStructures() {
     shader_program = new ShaderProgram("../src/shaders/vertex.glsl",
         "../src/shaders/fragment.glsl");
     shader_program->create_gl_program();
+
+    TextureBehaviour texture_behaviour {
+        MIRRORED_REPEAT,
+        MIRRORED_REPEAT,
+        MIRRORED_REPEAT,
+        LINEAR,
+        LINEAR,
+        LINEAR,
+        {1.f, 1.f, 1.f, 1.f}
+    };
+
+    Texture void_texture{};
+    void_texture.load_texture(FileInput::read_texture("../assets/textures/void.jpg"));
+    void_texture.set_texture_behaviour(texture_behaviour);
+
+    Texture debris_texture{};
+    debris_texture.load_texture(FileInput::read_texture("../assets/textures/ancient_debris.png"));
+    debris_texture.set_texture_behaviour(texture_behaviour);
+
+    mesh_object->set_texture(0, "t1", debris_texture);
+    mesh_object->set_texture(1, "t2", void_texture);
 }
 
 void loop(GLFWwindow* window) {

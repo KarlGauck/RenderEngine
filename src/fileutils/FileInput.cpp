@@ -5,15 +5,22 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
+#include <stb_image.h>
 #include "fileutils/FileInput.h"
 
-string FileInput::readFile(const string &filePath) {
-    ifstream stream(filePath);
+string FileInput::read_file(const string &file_path) {
+    ifstream stream(file_path);
     string line;
     stringstream ss;
     while (getline(stream, line)) {
         ss << line << "\n";
     }
     return ss.str();
+}
+
+TextureData FileInput::read_texture(const string &file_path) {
+    int width, height, channels;
+    std::unique_ptr<unsigned char> data(stbi_load(file_path.c_str(), &width, &height, &channels, 0));
+    return {width, height, channels, (std::move(data))};
 }
 
