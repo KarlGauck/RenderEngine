@@ -17,6 +17,26 @@ void MeshObject::set_indices(std::vector<unsigned int>& indices)
     this->indices = indices;
 }
 
+void MeshObject::set_texture(unsigned int texture_id, const std::string &texture_name, Texture &texture) {
+    texture_names[texture_id] = texture_name;
+    textures[texture_id] = texture;
+    used_textures[texture_id] = true;
+}
+
+void MeshObject::remove_texture(unsigned int texture_id) {
+    used_textures[texture_id] = false;
+}
+
+
+void MeshObject::load_textures(unsigned int program_id) {
+    for (int i = 0; i < 16; i++) {
+        if (!used_textures[i])
+            continue;
+        textures[i].bind_at(i);
+        glUniform1i(glGetUniformLocation(program_id, texture_names[i].c_str()), i);
+    }
+}
+
 void MeshObject::enable()
 {
     glBindVertexArray(vertex_array_object);
@@ -26,8 +46,6 @@ void MeshObject::disable()
 {
     glBindVertexArray(0);
 }
-
-
 
 void MeshObject::create_buffers()
 {

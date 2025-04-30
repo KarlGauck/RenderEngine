@@ -15,11 +15,13 @@ include_directories(include)
 add_executable(RenderEngine src/main.cpp lib/glad/src/glad.c
         src/fileutils/FileInput.cpp
         include/rendering/MeshObject.h
-        include/rendering/Texture.h
         include/rendering/ShaderProgram.h
         src/rendering/MeshObject.cpp
         src/rendering/ShaderProgram.cpp
         src/rendering/ShaderProgram.cpp
+        include/rendering/TextureBehaviour.h
+        include/rendering/Texture.h
+        src/rendering/Texture.cpp
 )
 
 

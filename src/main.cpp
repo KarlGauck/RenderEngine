@@ -67,16 +67,16 @@ void initGLStructures() {
 
     std::vector<Vertex> vertices {
         Vertex(
-            0.5f,  0.5f, 0.0f, 1.f, 0.f, 0.f, 1.f, 0.f
+            0.5f,  0.5f, 0.0f, 1.f, 0.f, 0.f, 2.f, 2.f
         ),
         Vertex(
-            0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 1.f, 1.f
+            0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 2.f, 0.f
         ),
         Vertex(
-            -0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 0.f, 1.f
+            -0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 0.f, 0.f
         ),
         Vertex(
-            -0.5f,  0.5f, 0.0f,  1.f, 0.f, 0.f, 0.f, 0.f
+            -0.5f,  0.5f, 0.0f,  1.f, 0.f, 0.f, 0.f, 2.f
         ),
     };
 
@@ -92,33 +92,26 @@ void initGLStructures() {
         "../src/shaders/fragment.glsl");
     shader_program->create_gl_program();
 
-    // Set texture out of bounds behaviour
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    TextureBehaviour texture_behaviour {
+        MIRRORED_REPEAT,
+        MIRRORED_REPEAT,
+        MIRRORED_REPEAT,
+        LINEAR,
+        LINEAR,
+        LINEAR,
+        {1.f, 1.f, 1.f, 1.f}
+    };
 
-    // Set border color (in case of border-color border-behaviour)
-    float border_color[] = {1.0f, 1.0f, 1.0f, 1.0f};
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color);
+    Texture void_texture{};
+    void_texture.load_texture(FileInput::read_texture("../assets/textures/void.jpg"));
+    void_texture.set_texture_behaviour(texture_behaviour);
 
-    // Texture filtering (interpolation)
+    Texture debris_texture{};
+    debris_texture.load_texture(FileInput::read_texture("../assets/textures/ancient_debris.png"));
+    debris_texture.set_texture_behaviour(texture_behaviour);
 
-    // Mipmap filtering method (and mipmap filtering (only in min filter))
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    int width, height, channels;
-    unsigned char* data = stbi_load("../assets/textures/ancient_debris.png", &width, &height, &channels, 0);
-
-    unsigned int texture;
-    glGenTextures(1, &texture);
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(data);
-
+    mesh_object->set_texture(0, "t1", debris_texture);
+    mesh_object->set_texture(1, "t2", void_texture);
 }
 
 void loop(GLFWwindow* window) {

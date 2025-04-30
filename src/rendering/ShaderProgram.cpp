@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <cmath>
+#include <stb_image.h>
 
 ShaderProgram::ShaderProgram(const std::string& vertex_path, const std::string& fragment_path) {
     this->vertexPath = vertex_path;
@@ -15,11 +16,11 @@ ShaderProgram::ShaderProgram(const std::string& vertex_path, const std::string& 
 
 void ShaderProgram::create_gl_program() {
 
-    const std::string vertexCode = FileInput::readFile(vertexPath);
+    const std::string vertexCode = FileInput::read_file(vertexPath);
     std::cout << vertexPath << std::endl;
     std::cout << "vertex: " << vertexCode << std::endl;
     const char* vertexSource = vertexCode.c_str();
-    const string fragmentCode = FileInput::readFile(fragmentPath);
+    const string fragmentCode = FileInput::read_file(fragmentPath);
     std::cout << "fragment: " << fragmentCode << std::endl;
     const char* fragmentSource = fragmentCode.c_str();
 
@@ -44,15 +45,23 @@ void ShaderProgram::create_gl_program() {
 void ShaderProgram::render(MeshObject& mesh_object) {
 float timeValue = glfwGetTime();
         float greenValue = (::sin(timeValue) / 2.0f) + 0.5f;
-        int vertexColorLocation = glGetUniformLocation(program, "ourColor");
+
         glUseProgram(program);
+        mesh_object.load_textures(program);
+
+        int vertexColorLocation = glGetUniformLocation(program, "ourColor");
         glUniform4f(vertexColorLocation, greenValue, greenValue, greenValue, greenValue);
+
+        //int tex1loc = glGetUniformLocation(program, "t1");
+        //int tex2loc = glGetUniformLocation(program, "t2");
+
+        //glUniform1i(tex1loc, 0);
+        //glUniform1i(tex2loc, 1);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         mesh_object.enable();
         glDrawElements(GL_TRIANGLES, 6,  GL_UNSIGNED_INT, 0);
-
 }
 
 void ShaderProgram::print_shader_program_log(unsigned int shaderProgram) {
