@@ -67,16 +67,16 @@ void initGLStructures() {
 
     std::vector<Vertex> vertices {
         Vertex(
-            0.5f,  0.5f, 0.0f, 1.f, 0.f, 0.f, 2.f, 2.f
+            0.5f,  0.5f, 0.0f, 1.f, 0.f, 0.f, 1.f, 1.f
         ),
         Vertex(
-            0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 2.f, 0.f
+            0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 1.f, 0.f
         ),
         Vertex(
             -0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 0.f, 0.f
         ),
         Vertex(
-            -0.5f,  0.5f, 0.0f,  1.f, 0.f, 0.f, 0.f, 2.f
+            -0.5f,  0.5f, 0.0f,  1.f, 0.f, 0.f, 0.f, 1.f
         ),
     };
 
@@ -93,9 +93,9 @@ void initGLStructures() {
     shader_program->create_gl_program();
 
     TextureBehaviour texture_behaviour {
-        MIRRORED_REPEAT,
-        MIRRORED_REPEAT,
-        MIRRORED_REPEAT,
+        REPEAT,
+        REPEAT,
+        REPEAT,
         LINEAR,
         LINEAR,
         LINEAR,

@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 # === Find external cmake-projects ===
 find_package(glfw3 REQUIRED)
+find_package(glm CONFIG REQUIRED)
 
 # === Include library directories ===
 include_directories(lib/glad/include)
@@ -22,7 +23,9 @@ add_executable(RenderEngine src/main.cpp lib/glad/src/glad.c
         include/rendering/TextureBehaviour.h
         include/rendering/Texture.h
         src/rendering/Texture.cpp
+        include/rendering/InstanceManager.h
+        src/rendering/InstanceManager.cpp
 )
 
 
-target_link_libraries(RenderEngine glfw)
+target_link_libraries(RenderEngine PRIVATE glfw glm::glm)
