@@ -11,12 +11,13 @@ include_directories(lib/glad/include)
 include_directories(lib/linmath)
 include_directories(lib/stb)
 include_directories(include)
+include_directories(src/rendering)
 # Executables
 add_executable(RenderEngine src/main.cpp lib/glad/src/glad.c
         src/fileutils/FileInput.cpp
         include/rendering/MeshObject.h
         include/rendering/ShaderProgram.h
-        src/rendering/MeshObject.cpp
+        src/rendering/MeshObject.inc
         src/rendering/ShaderProgram.cpp
         src/rendering/ShaderProgram.cpp
         include/rendering/TextureBehaviour.h

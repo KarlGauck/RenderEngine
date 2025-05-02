@@ -3,18 +3,18 @@
 
 #include <memory>
 #include <vector>
+#include <tuple>
+#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include "Texture.h"
+template<typename>
+struct is_tuple : std::false_type {};
 
-#endif //MESHOBJECT_H
+template<typename ... Types>
+struct is_tuple<std::tuple<Types...>> : std::true_type {};
 
-
-struct Vertex
-{
-    float x, y, z;
-    float r, g, b;
-    float tex1, tex2;
-};
-
+template <typename Vertex>
+requires is_tuple<Vertex>::value
 class MeshObject
 {
     unsigned int vertex_array_object = 0;
@@ -43,3 +43,10 @@ public:
     void enable();
     void disable();
 };
+
+#define DEFAULT_VERTEX_ATTRIBS glm::vec3, glm::vec3, glm::vec2
+typedef MeshObject<std::tuple<DEFAULT_VERTEX_ATTRIBS>> DefaultMeshObject;
+
+#include "MeshObject.inc"
+
+#endif //MESHOBJECT_H

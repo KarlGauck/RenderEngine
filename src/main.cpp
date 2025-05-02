@@ -19,7 +19,7 @@ const unsigned int SCR_HEIGHT = 600;
 unsigned int shaderProgram;
 unsigned int vao;
 
-MeshObject *mesh_object = nullptr;
+DefaultMeshObject *mesh_object = nullptr;
 ShaderProgram *shader_program = nullptr;
 
 void initGLFW() {
@@ -65,8 +65,9 @@ void initGLStructures() {
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    std::vector<Vertex> vertices {
-        Vertex(
+    /*
+    std::vector<DefaultVertex> vertices {
+        std::make_tuple(
             0.5f,  0.5f, 0.0f, 1.f, 0.f, 0.f, 2.f, 2.f
         ),
         Vertex(
@@ -78,6 +79,29 @@ void initGLStructures() {
         Vertex(
             -0.5f,  0.5f, 0.0f,  1.f, 0.f, 0.f, 0.f, 2.f
         ),
+    };
+    */
+    std::vector vertices {
+        std::make_tuple(
+            glm::vec3(0.5f, 0.5f, 0.0f),
+            glm::vec3(1.0f, 0.0f, 0.0f),
+            glm::vec2(1.0f, 1.0f)
+        ),
+        std::make_tuple(
+            glm::vec3(0.5f, -0.5f, 0.0f),
+            glm::vec3(1.0f, 0.0f, 0.0f),
+            glm::vec2(1.0f, 0.0f)
+        ),
+        std::make_tuple(
+            glm::vec3(-0.5f, -0.5f, 0.0f),
+            glm::vec3(1.0f, 0.0f, 0.0f),
+            glm::vec2(0.0f, 0.0f)
+        ),
+        std::make_tuple(
+            glm::vec3(-0.5f, 0.5f, 0.0f),
+            glm::vec3(1.0f, 0.0f, 0.0f),
+            glm::vec2(0.0f, 1.0f)
+        )
     };
 
     std::vector<unsigned int> indices {
