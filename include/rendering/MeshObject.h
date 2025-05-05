@@ -5,7 +5,6 @@
 #include <vector>
 #include "Texture.h"
 
-#endif //MESHOBJECT_H
 
 
 struct Vertex
@@ -31,8 +30,8 @@ class MeshObject
 public:
     MeshObject(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices);
 
-    void set_vertices(std::vector<Vertex>& vertices);
-    void set_indices(std::vector<unsigned int>& indices);
+    void set_vertices(std::vector<Vertex> &vertices);
+    void set_indices(std::vector<unsigned int> &indices);
     void set_texture(unsigned int texture_id, const std::string &texture_name, Texture& texture);
     void remove_texture(unsigned int texture_id);
 
@@ -43,3 +42,5 @@ public:
     void enable();
     void disable();
 };
+
+#endif //MESHOBJECT_H
