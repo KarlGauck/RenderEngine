@@ -43,25 +43,23 @@ void ShaderProgram::create_gl_program() {
 }
 
 void ShaderProgram::render(MeshObject& mesh_object) {
-float timeValue = glfwGetTime();
-        float greenValue = (::sin(timeValue) / 2.0f) + 0.5f;
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(program);
-        mesh_object.load_textures(program);
+    glUseProgram(program);
+    mesh_object.load_textures(program);
+    mesh_object.enable();
+    glDrawElements(GL_TRIANGLES, 6,  GL_UNSIGNED_INT, 0);
+}
 
-        int vertexColorLocation = glGetUniformLocation(program, "ourColor");
-        glUniform4f(vertexColorLocation, greenValue, greenValue, greenValue, greenValue);
+void ShaderProgram::render_instanced(InstanceManager& instance_manager) {
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-        //int tex1loc = glGetUniformLocation(program, "t1");
-        //int tex2loc = glGetUniformLocation(program, "t2");
-
-        //glUniform1i(tex1loc, 0);
-        //glUniform1i(tex2loc, 1);
-
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        mesh_object.enable();
-        glDrawElementsInstanced(GL_TRIANGLES, 6,  GL_UNSIGNED_INT, 0, 10);
+    glUseProgram(program);
+    instance_manager.get_mesh_object().load_textures(program);
+    instance_manager.get_mesh_object().enable();
+    glDrawElementsInstanced(GL_TRIANGLES, 6,  GL_UNSIGNED_INT, 0, instance_manager.get_instance_count());
 }
 
 void ShaderProgram::print_shader_program_log(unsigned int shaderProgram) {
@@ -86,4 +84,26 @@ void ShaderProgram::print_shader_log(unsigned int shader) {
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::" << shader << "::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
+}
+
+//UNIFORMS
+
+unsigned int ShaderProgram::get_location(std::string name) {
+    return glGetUniformLocation(program, name.c_str());
+}
+
+void ShaderProgram::set_uniform_1f(std::string name, float arg) {
+    glUniform1f(get_location(name), arg);
+}
+
+void ShaderProgram::set_uniform_2f(std::string name, glm::vec2 arg) {
+    glUniform2f(get_location(name), arg.x, arg.y);
+}
+
+void ShaderProgram::set_uniform_3f(std::string name, glm::vec3 arg) {
+    glUniform3f(get_location(name), arg.x, arg.y, arg.z);
+}
+
+void ShaderProgram::set_uniform_4f(std::string name, glm::vec4 arg) {
+    glUniform4f(get_location(name), arg.x, arg.y, arg.z, arg.w);
 }

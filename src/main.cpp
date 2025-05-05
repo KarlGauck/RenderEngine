@@ -8,7 +8,11 @@
 
 #include <iostream>
 
+#include "rendering/InstanceManager.h"
 #include "rendering/ShaderProgram.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -20,6 +24,7 @@ unsigned int shaderProgram;
 unsigned int vao;
 
 MeshObject *mesh_object = nullptr;
+InstanceManager *instance_manager = nullptr;
 ShaderProgram *shader_program = nullptr;
 
 void initGLFW() {
@@ -56,10 +61,6 @@ int initGlad() {
 
     return 0;
 }
-
-
-
-
 
 void initGLStructures() {
     glGenVertexArrays(1, &vao);
@@ -111,7 +112,23 @@ void initGLStructures() {
     debris_texture.set_texture_behaviour(texture_behaviour);
 
     mesh_object->set_texture(0, "t1", debris_texture);
-    mesh_object->set_texture(1, "t2", void_texture);
+    mesh_object->set_texture(1, "t2",void_texture);
+
+    std::vector instances {
+        Instance {
+            glm::vec2(0.5f, 0)
+        },
+        Instance {
+            glm::vec2(-0.5f, 0)
+        }
+    };
+    instance_manager = new InstanceManager(*mesh_object);
+    instance_manager->create_buffer();
+    instance_manager->set_instances(instances);
+
+    float timeValue = glfwGetTime();
+    float greenValue = (::sin(timeValue) / 2.0f) + 0.5f;
+    shader_program->set_uniform_4f("ourColor", glm::vec4(greenValue));
 }
 
 void loop(GLFWwindow* window) {

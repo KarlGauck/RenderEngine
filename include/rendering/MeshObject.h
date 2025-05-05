@@ -5,7 +5,6 @@
 #include <vector>
 #include "Texture.h"
 
-#endif //MESHOBJECT_H
 
 
 struct Vertex
@@ -43,3 +42,5 @@ public:
     void enable();
     void disable();
 };
+
+#endif //MESHOBJECT_H
