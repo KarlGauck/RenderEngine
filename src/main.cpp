@@ -29,8 +29,8 @@ ShaderProgram *shader_program = nullptr;
 
 void initGLFW() {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     #ifdef __APPLE__
@@ -59,10 +59,13 @@ int initGlad() {
         return -1;
     }
 
+
     return 0;
 }
 
 void initGLStructures() {
+    glEnable(GL_DEPTH_TEST);
+
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -116,10 +119,10 @@ void initGLStructures() {
 
     std::vector instances {
         Instance {
-            glm::vec2(0.5f, 0)
+            glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(0.3f, 0.3f, 0.f)), glm::vec3(1.f, 0.f, 0.f))
         },
         Instance {
-            glm::vec2(-0.5f, 0)
+            glm::rotate(glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(0.3f, 0.3f, 0.f)), glm::vec3(-1.f, 0.f, 0.f)), (float)numbers::pi/7, glm::vec3(1.f, 1.f, 1.f))
         }
     };
     instance_manager = new InstanceManager(*mesh_object);
@@ -136,7 +139,7 @@ void loop(GLFWwindow* window) {
     {
         processInput(window);
 
-        shader_program->render(*mesh_object);
+        shader_program->render_instanced(*instance_manager);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
