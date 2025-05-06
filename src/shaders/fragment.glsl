@@ -1,6 +1,7 @@
-#version 330 core
+#version 460 core
 in vec3 color;
 in vec2 texture_coords;
+in mat4x4 f_transform;
 out vec4 FragColor;
 uniform vec4 ourColor;
 
