@@ -5,6 +5,7 @@
 
 MeshObject::MeshObject(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices):
     vertices(vertices), indices(indices) {
+    index_count = indices.size();
 }
 
 void MeshObject::set_vertices(std::vector<Vertex>& vertices)
@@ -15,6 +16,7 @@ void MeshObject::set_vertices(std::vector<Vertex>& vertices)
 void MeshObject::set_indices(std::vector<unsigned int>& indices)
 {
     this->indices = indices;
+    index_count = indices.size();
 }
 
 void MeshObject::set_texture(unsigned int texture_id, const std::string &texture_name, Texture &texture) {
@@ -77,4 +79,8 @@ void MeshObject::delete_buffers() const {
     glDeleteVertexArrays(1, &vertex_array_object);
     glDeleteBuffers(1, &vertex_buffer_object);
     glDeleteBuffers(1, &element_buffer_object);
+}
+
+unsigned int MeshObject::get_index_count() {
+     return index_count;
 }

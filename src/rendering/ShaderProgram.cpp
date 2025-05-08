@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cmath>
 #include <stb_image.h>
+#include <glm/gtc/type_ptr.hpp>
 
 ShaderProgram::ShaderProgram(const std::string& vertex_path, const std::string& fragment_path) {
     this->vertexPath = vertex_path;
@@ -15,7 +16,6 @@ ShaderProgram::ShaderProgram(const std::string& vertex_path, const std::string& 
 }
 
 void ShaderProgram::create_gl_program() {
-
     const std::string vertexCode = FileInput::read_file(vertexPath);
     std::cout << vertexPath << std::endl;
     std::cout << "vertex: " << vertexCode << std::endl;
@@ -42,25 +42,28 @@ void ShaderProgram::create_gl_program() {
     print_shader_program_log(program);
 }
 
-void ShaderProgram::render(MeshObject& mesh_object) {
+void ShaderProgram::render(MeshObject& mesh_object, Camera &camera) {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(program);
     mesh_object.load_textures(program);
     mesh_object.enable();
-    glDrawElements(GL_TRIANGLES, 6,  GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, mesh_object.get_index_count(),  GL_UNSIGNED_INT, 0);
 }
 
-void ShaderProgram::render_instanced(InstanceManager& instance_manager) {
+void ShaderProgram::render_instanced(InstanceManager& instance_manager, Camera &camera) {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(program);
     instance_manager.get_mesh_object().load_textures(program);
     instance_manager.get_mesh_object().enable();
-    //instance_manager.bind();
-    glDrawElementsInstanced(GL_TRIANGLES, 6,  GL_UNSIGNED_INT, 0, instance_manager.get_instance_count());
+
+    set_uniform_mat4f("view_matrix", camera.get_view_matrix());
+    set_uniform_mat4f("projection_matrix", camera.get_projection_matrix());
+
+    glDrawElementsInstanced(GL_TRIANGLES, instance_manager.get_mesh_object().get_index_count(),  GL_UNSIGNED_INT, 0, instance_manager.get_instance_count());
 }
 
 void ShaderProgram::print_shader_program_log(unsigned int shaderProgram) {
@@ -107,4 +110,8 @@ void ShaderProgram::set_uniform_3f(std::string name, glm::vec3 arg) {
 
 void ShaderProgram::set_uniform_4f(std::string name, glm::vec4 arg) {
     glUniform4f(get_location(name), arg.x, arg.y, arg.z, arg.w);
+}
+
+void ShaderProgram::set_uniform_mat4f(std::string name, glm::mat4 mat) {
+    glUniformMatrix4fv(get_location(name), 1, GL_FALSE, glm::value_ptr(mat));
 }

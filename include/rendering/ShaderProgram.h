@@ -2,6 +2,8 @@
 #define SHADERPROGRAM_H
 
 #include <string>
+
+#include "Camera.h"
 #include "MeshObject.h"
 #include "InstanceManager.h"
 
@@ -24,11 +26,12 @@ public:
 
     void create_gl_program();
 
-    void render(MeshObject& mesh_object);
-    void render_instanced(InstanceManager &instance_manager);
+    void render(MeshObject& mesh_object, Camera &camera);
+    void render_instanced(InstanceManager &instance_manager, Camera &camera);
 
     void set_uniform_1f(std::string name, float arg);
     void set_uniform_2f(std::string name, glm::vec2 arg);
     void set_uniform_3f(std::string name, glm::vec3 arg);
     void set_uniform_4f(std::string name, glm::vec4 arg);
+    void set_uniform_mat4f(std::string, glm::mat4 mat);
 };

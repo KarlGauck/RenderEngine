@@ -6,14 +6,18 @@ out vec3 color;
 out vec2 texture_coords;
 out mat4x4 f_transform;
 
+uniform mat4 view_matrix;
+uniform mat4 projection_matrix;
+
 layout(binding = 0, std430) readonly buffer ssbo1 {
     mat4 i_transform[];
 };
 
 void main()
 {
-    gl_Position = i_transform[gl_InstanceID] * vec4(i_position, 1.0);
-    color = i_color;
+    gl_Position = projection_matrix * view_matrix * i_transform[gl_InstanceID] * vec4(i_position, 1.0);
+    vec4 pos = projection_matrix * view_matrix * i_transform[gl_InstanceID] * vec4(i_position, 1.0);
+    color = i_position.xyz;
     texture_coords = i_texture_coords;
     f_transform = i_transform[gl_InstanceID];
 }
