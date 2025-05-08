@@ -25,6 +25,8 @@ add_executable(RenderEngine src/main.cpp lib/glad/src/glad.c
         src/rendering/Texture.cpp
         include/rendering/InstanceManager.h
         src/rendering/InstanceManager.cpp
+        include/rendering/Camera.h
+        src/rendering/Camera.cpp
 )
 
 

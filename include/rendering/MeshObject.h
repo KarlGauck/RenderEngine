@@ -20,6 +20,8 @@ class MeshObject
     unsigned int vertex_buffer_object = 0;
     unsigned int element_buffer_object = 0;
 
+    unsigned int index_count = 0;
+
     std::vector<Vertex>& vertices;
     std::vector<unsigned int>& indices;
 
@@ -41,6 +43,8 @@ public:
 
     void enable();
     void disable();
+
+    unsigned int get_index_count();
 };
 
 #endif //MESHOBJECT_H

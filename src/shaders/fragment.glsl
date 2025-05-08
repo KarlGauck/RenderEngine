@@ -3,12 +3,12 @@ in vec3 color;
 in vec2 texture_coords;
 in mat4x4 f_transform;
 out vec4 FragColor;
-uniform vec4 ourColor;
+uniform float scalar;
 
 uniform sampler2D t1;
 uniform sampler2D t2;
 
 void main()
 {
-    FragColor = texture(t1, texture_coords);
+    FragColor = texture(t2, texture_coords);
 }

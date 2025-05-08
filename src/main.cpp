@@ -26,6 +26,7 @@ unsigned int vao;
 MeshObject *mesh_object = nullptr;
 InstanceManager *instance_manager = nullptr;
 ShaderProgram *shader_program = nullptr;
+Camera camera;
 
 void initGLFW() {
     glfwInit();
@@ -60,6 +61,7 @@ int initGlad() {
     }
 
 
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     return 0;
 }
 
@@ -71,22 +73,44 @@ void initGLStructures() {
 
     std::vector<Vertex> vertices {
         Vertex(
-            0.5f,  0.5f, 0.0f, 1.f, 0.f, 0.f, 1.f, 1.f
+            0.5f,  0.5f, 0.5f, 1.f, 0.f, 0.f, 1.f, 1.f
         ),
         Vertex(
-            0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 1.f, 0.f
+            0.5f, -0.5f, 0.5f, 1.f, 0.f, 0.f, 1.f, 0.f
         ),
         Vertex(
-            -0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 0.f, 0.f
+            -0.5f, -0.5f, 0.5f, 1.f, 0.f, 0.f, 0.f, 0.f
         ),
         Vertex(
-            -0.5f,  0.5f, 0.0f,  1.f, 0.f, 0.f, 0.f, 1.f
+            -0.5f,  0.5f, 0.5f,  1.f, 0.f, 0.f, 0.f, 1.f
+        ),
+        Vertex(
+            0.5f,  0.5f, -0.5f, 1.f, 0.f, 0.f, 1.f, 1.f
+        ),
+        Vertex(
+            0.5f, -0.5f, -0.5f, 1.f, 0.f, 0.f, 1.f, 0.f
+        ),
+        Vertex(
+            -0.5f, -0.5f, -0.5f, 1.f, 0.f, 0.f, 0.f, 0.f
+        ),
+        Vertex(
+            -0.5f,  0.5f, -0.5f,  1.f, 0.f, 0.f, 0.f, 1.f
         ),
     };
 
     std::vector<unsigned int> indices {
         0, 1, 3,
-        1, 2, 3
+        1, 2, 3,
+        0, 1, 4,
+        1, 5, 4,
+        1, 5, 2,
+        2, 5, 6,
+        0, 4, 3,
+        3, 4, 7,
+        2, 7, 6,
+        2, 3, 7,
+        4, 5, 6,
+        4, 6, 7
     };
 
     mesh_object = new MeshObject(vertices, indices);
@@ -119,12 +143,14 @@ void initGLStructures() {
 
     std::vector instances {
         Instance {
-            glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(0.3f, 0.3f, 0.f)), glm::vec3(1.f, 0.f, 0.f))
+            glm::rotate(
+                glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(0.3f, 0.3f, 0.3f)), glm::vec3(0.f, 0.f, 0.f)),
+                0.0f,
+                glm::vec3(1.f, 1.f, 0.f)
+                )
         },
-        Instance {
-            glm::rotate(glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(0.3f, 0.3f, 0.f)), glm::vec3(-1.f, 0.f, 0.f)), (float)numbers::pi/7, glm::vec3(1.f, 1.f, 1.f))
-        }
     };
+
     instance_manager = new InstanceManager(*mesh_object);
     instance_manager->create_buffer();
     instance_manager->set_instances(instances);
@@ -132,6 +158,27 @@ void initGLStructures() {
     float timeValue = glfwGetTime();
     float greenValue = (::sin(timeValue) / 2.0f) + 0.5f;
     shader_program->set_uniform_4f("ourColor", glm::vec4(greenValue));
+
+    camera = {
+        glm::vec3(3, 3, 3),
+        glm::radians(-45.f),
+        glm::radians(-45.f),
+        glm::radians(45.f),
+        0.1f,
+        10.f,
+        1
+    };
+
+    glm::mat4 proj = camera.get_projection_matrix();
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++)
+            std::cout << proj[i][j] << " ";
+        std::cout << std::endl;
+    }
+
+    glm::vec4 r = proj * camera.get_view_matrix() * glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+    float w = r.w;
+    std::cout << r.x/w << " " << r.y/w << " " << r.z/w << std::endl;
 }
 
 void loop(GLFWwindow* window) {
@@ -139,7 +186,13 @@ void loop(GLFWwindow* window) {
     {
         processInput(window);
 
-        shader_program->render_instanced(*instance_manager);
+        float timeValue = glfwGetTime()*3;
+        float greenValue = (::sin(timeValue) / 2.0f) + 0.5f;
+
+        glm::mat4 view = camera.get_view_matrix();
+        glm::mat4 rot = glm::rotate(glm::mat4(1.f), greenValue, glm::vec3(0, 1, 0));
+        shader_program->set_uniform_1f("scalar", greenValue);
+        shader_program->render_instanced(*instance_manager, camera);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -156,7 +209,6 @@ int main()
     if (initGlad() == -1)
         return -1;
 
-
     initGLStructures();
 
     loop(window);
@@ -171,13 +223,44 @@ void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    float vel = 0.02f;
+    float angular_vel = 0.02f;
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.position += vel*camera.get_view_direction();
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.position -= vel*camera.get_view_direction();
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.position -= vel*camera.get_horizontal_axis();
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.position += vel*camera.get_horizontal_axis();
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+        camera.yaw -= angular_vel;
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+        camera.yaw += angular_vel;
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        camera.pitch += angular_vel;
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        camera.pitch -= angular_vel;
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.position.y += vel;
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        camera.position.y -= vel;
+
+//    glm::vec3 pos = glm::vec3(sin(angle)*radius, camera.position.y, cos(angle)*radius);
+//    camera.position = pos;
+//    camera.yaw = -angle;
+//    std::cout << camera.position.x << std::endl;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+    camera.aspect_ratio = (float)width/height;
 }
