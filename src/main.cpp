@@ -141,15 +141,22 @@ void initGLStructures() {
     mesh_object->set_texture(0, "t1", debris_texture);
     mesh_object->set_texture(1, "t2",void_texture);
 
-    std::vector instances {
-        Instance {
-            glm::rotate(
-                glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(0.3f, 0.3f, 0.3f)), glm::vec3(0.f, 0.f, 0.f)),
-                0.0f,
-                glm::vec3(1.f, 1.f, 0.f)
-                )
-        },
-    };
+    int size = 100;
+    float scale = 0.1;
+    float spacing = 1;
+    float offset = spacing + scale * 2;
+    std::vector<Instance> instances(size*size*size);
+    for (int x = 0; x < size; x++) {
+        for (int y = 0; y < size; y++) {
+            for (int z = 0; z < size; z++) {
+               instances.push_back (
+                    Instance {
+                       glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(scale)), glm::vec3(x*offset, y*offset, z*offset))
+                    }
+               );
+            }
+        }
+    }
 
     instance_manager = new InstanceManager(*mesh_object);
     instance_manager->create_buffer();
@@ -165,20 +172,9 @@ void initGLStructures() {
         glm::radians(-45.f),
         glm::radians(45.f),
         0.1f,
-        10.f,
+        1000.f,
         1
     };
-
-    glm::mat4 proj = camera.get_projection_matrix();
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++)
-            std::cout << proj[i][j] << " ";
-        std::cout << std::endl;
-    }
-
-    glm::vec4 r = proj * camera.get_view_matrix() * glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-    float w = r.w;
-    std::cout << r.x/w << " " << r.y/w << " " << r.z/w << std::endl;
 }
 
 void loop(GLFWwindow* window) {
@@ -247,6 +243,10 @@ void processInput(GLFWwindow *window)
         camera.position.y += vel;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         camera.position.y -= vel;
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+        camera.field_of_view = glm::radians(20.f);
+    else
+        camera.field_of_view = glm::radians(45.f);
 
 //    glm::vec3 pos = glm::vec3(sin(angle)*radius, camera.position.y, cos(angle)*radius);
 //    camera.position = pos;
