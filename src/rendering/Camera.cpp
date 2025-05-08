@@ -4,7 +4,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 glm::mat4 Camera::get_view_matrix() {
-    std::cout << position.x << " " << position.z << std::endl;
     return glm::translate(
         glm::rotate(
             glm::rotate (
