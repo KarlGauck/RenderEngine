@@ -73,28 +73,28 @@ void initGLStructures() {
 
     std::vector<Vertex> vertices {
         Vertex(
-            0.5f,  0.5f, 0.5f, 1.f, 0.f, 0.f, 1.f, 1.f
+            0.5f,  0.5f, 0.5f, 0.5f,  0.5f, 0.5f, 1.f, 0.f, 0.f, 1.f, 1.f
         ),
         Vertex(
-            0.5f, -0.5f, 0.5f, 1.f, 0.f, 0.f, 1.f, 0.f
+            0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 1.f, 0.f, 0.f, 1.f, 0.f
         ),
         Vertex(
-            -0.5f, -0.5f, 0.5f, 1.f, 0.f, 0.f, 0.f, 0.f
+            -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 1.f, 0.f, 0.f, 0.f, 0.f
         ),
         Vertex(
-            -0.5f,  0.5f, 0.5f,  1.f, 0.f, 0.f, 0.f, 1.f
+            -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  1.f, 0.f, 0.f, 0.f, 1.f
         ),
         Vertex(
-            0.5f,  0.5f, -0.5f, 1.f, 0.f, 0.f, 1.f, 1.f
+            0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 1.f, 0.f, 0.f, 1.f, 1.f
         ),
         Vertex(
-            0.5f, -0.5f, -0.5f, 1.f, 0.f, 0.f, 1.f, 0.f
+            0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 1.f, 0.f, 0.f, 1.f, 0.f
         ),
         Vertex(
-            -0.5f, -0.5f, -0.5f, 1.f, 0.f, 0.f, 0.f, 0.f
+            -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 1.f, 0.f, 0.f, 0.f, 0.f
         ),
         Vertex(
-            -0.5f,  0.5f, -0.5f,  1.f, 0.f, 0.f, 0.f, 1.f
+            -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  1.f, 0.f, 0.f, 0.f, 1.f
         ),
     };
 
@@ -167,9 +167,9 @@ void initGLStructures() {
     shader_program->set_uniform_4f("ourColor", glm::vec4(greenValue));
 
     camera = {
-        glm::vec3(3, 3, 3),
-        glm::radians(-45.f),
-        glm::radians(-45.f),
+        glm::vec3(0, 0, 0),
+        glm::radians(45.f),
+        glm::radians(-225.f),
         glm::radians(45.f),
         0.1f,
         1000.f,
