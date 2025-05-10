@@ -27,6 +27,10 @@ add_executable(RenderEngine src/main.cpp lib/glad/src/glad.c
         src/rendering/InstanceManager.cpp
         include/rendering/Camera.h
         src/rendering/Camera.cpp
+        include/fileutils/MeshParser.h
+        src/fileutils/MeshParser.cpp
+        include/stdextentions/StringUtils.h
+        src/stdextentions/StringUtils.cpp
 )
 
 

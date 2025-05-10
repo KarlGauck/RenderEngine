@@ -13,6 +13,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "stdextentions/StringUtils.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -141,7 +142,7 @@ void initGLStructures() {
     mesh_object->set_texture(0, "t1", debris_texture);
     mesh_object->set_texture(1, "t2",void_texture);
 
-    int size = 100;
+    int size = 50;
     float scale = 0.1;
     float spacing = 1;
     float offset = spacing + scale * 2;
