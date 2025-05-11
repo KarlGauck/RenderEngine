@@ -87,3 +87,8 @@ void MeshObject::delete_buffers() const {
 unsigned int MeshObject::get_index_count() {
      return index_count;
 }
+
+void MeshObject::print() {
+    auto vertex = vertices[0];
+    std::cout << vertex.x << " " << vertex.y << " " << vertex.z << " " << vertex.nx << " " << vertex.ny << " " << vertex.nz << " " << vertex.r << " " << vertex.g << " " << vertex.b << " " << vertex.tex1 << " " << vertex.tex2 << std::endl;
+}

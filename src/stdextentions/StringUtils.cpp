@@ -15,3 +15,9 @@ std::vector<std::string> StringUtils::split(const std::string& s, const std::str
     tokens.push_back(temp);
     return tokens;
 }
+
+std::string StringUtils::remove_first(const std::string &s, const std::string &target) {
+    size_t pos = s.find(target);
+    return s.substr(0, pos) + s.substr(pos+target.length(), std::string::npos);
+}
+
