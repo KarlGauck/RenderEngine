@@ -3,9 +3,10 @@
 
 #include <memory>
 #include <vector>
+
+#include <glm/glm.hpp>
+
 #include "Texture.h"
-
-
 
 struct Vertex
 {
@@ -13,6 +14,13 @@ struct Vertex
     float nx, ny, nz;
     float r, g, b;
     float tex1, tex2;
+
+    Vertex(float x, float y, float z, float nx, float ny, float nz, float r, float g, float b, float tex1, float tex2):
+        x(x), y(y), z(z), nx(nx), ny(ny), nz(nz), r(r), g(g), b(b), tex1(tex1), tex2(tex2) {}
+
+    Vertex(glm::vec3 position, glm::vec3 normal, glm::vec3 color, glm::vec2 texture_coordinate):
+        x(position.x), y(position.y), z(position.z), nx(normal.x), ny(normal.y), nz(normal.z),
+        r(color.r), g(color.g), b(color.b), tex1(texture_coordinate.x), tex2(texture_coordinate.y) {}
 };
 
 class MeshObject
@@ -23,8 +31,8 @@ class MeshObject
 
     unsigned int index_count = 0;
 
-    std::vector<Vertex>& vertices;
-    std::vector<unsigned int>& indices;
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
 
     std::string texture_names[16];
     Texture textures[16];

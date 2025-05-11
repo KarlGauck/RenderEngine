@@ -4,15 +4,17 @@
 #include <GLFW/glfw3.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-# include <stb_image.h>
+#include <stb_image.h>
 
 #include <iostream>
 
+#include "fileutils/MeshParser.h"
 #include "rendering/InstanceManager.h"
 #include "rendering/ShaderProgram.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "stdextentions/StringUtils.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -23,7 +25,7 @@ const unsigned int SCR_HEIGHT = 600;
 unsigned int shaderProgram;
 unsigned int vao;
 
-MeshObject *mesh_object = nullptr;
+MeshObject mesh_object = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/monkey.obj"));
 InstanceManager *instance_manager = nullptr;
 ShaderProgram *shader_program = nullptr;
 Camera camera;
@@ -113,8 +115,7 @@ void initGLStructures() {
         4, 6, 7
     };
 
-    mesh_object = new MeshObject(vertices, indices);
-    mesh_object->create_buffers();
+    mesh_object.create_buffers();
 
     shader_program = new ShaderProgram("../src/shaders/vertex.glsl",
         "../src/shaders/fragment.glsl");
@@ -138,12 +139,12 @@ void initGLStructures() {
     debris_texture.load_texture(FileInput::read_texture("../assets/textures/ancient_debris.png"));
     debris_texture.set_texture_behaviour(texture_behaviour);
 
-    mesh_object->set_texture(0, "t1", debris_texture);
-    mesh_object->set_texture(1, "t2",void_texture);
+    mesh_object.set_texture(0, "t1", debris_texture);
+    mesh_object.set_texture(1, "t2",void_texture);
 
-    int size = 100;
+    int size = 10;
     float scale = 0.1;
-    float spacing = 1;
+    float spacing = 2;
     float offset = spacing + scale * 2;
     std::vector<Instance> instances(size*size*size);
     for (int x = 0; x < size; x++) {
@@ -158,7 +159,7 @@ void initGLStructures() {
         }
     }
 
-    instance_manager = new InstanceManager(*mesh_object);
+    instance_manager = new InstanceManager(mesh_object);
     instance_manager->create_buffer();
     instance_manager->set_instances(instances);
 
