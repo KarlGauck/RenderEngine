@@ -198,8 +198,6 @@ void loop(GLFWwindow* window) {
 
 int main()
 {
-    mesh_object.print();
-    std::cout << "lel" << std::endl;
     initGLFW();
     GLFWwindow* window = initWindow();
     if (!window)

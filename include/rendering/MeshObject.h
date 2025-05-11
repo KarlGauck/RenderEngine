@@ -54,8 +54,6 @@ public:
     void disable();
 
     unsigned int get_index_count();
-
-    void print();
 };
 
 #endif //MESHOBJECT_H
