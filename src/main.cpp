@@ -25,8 +25,10 @@ const unsigned int SCR_HEIGHT = 600;
 unsigned int shaderProgram;
 unsigned int vao;
 
-MeshObject mesh_object = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/monkey.obj"));
+MeshObject mesh_object = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/cat.obj"));
+MeshObject mesh_object2 = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/test.obj"));
 InstanceManager *instance_manager = nullptr;
+InstanceManager *instance_manager2 = nullptr;
 ShaderProgram *shader_program = nullptr;
 Camera camera;
 
@@ -116,6 +118,7 @@ void initGLStructures() {
     };
 
     mesh_object.create_buffers();
+    mesh_object2.create_buffers();
 
     shader_program = new ShaderProgram("../src/shaders/vertex.glsl",
         "../src/shaders/fragment.glsl");
@@ -142,9 +145,12 @@ void initGLStructures() {
     mesh_object.set_texture(0, "t1", debris_texture);
     mesh_object.set_texture(1, "t2",void_texture);
 
-    int size = 10;
+    mesh_object2.set_texture(0, "t1", debris_texture);
+    mesh_object2.set_texture(1, "t2",void_texture);
+
+    int size = 1;
     float scale = 0.1;
-    float spacing = 2;
+    float spacing = 4;
     float offset = spacing + scale * 2;
     std::vector<Instance> instances(size*size*size);
     for (int x = 0; x < size; x++) {
@@ -162,6 +168,10 @@ void initGLStructures() {
     instance_manager = new InstanceManager(mesh_object);
     instance_manager->create_buffer();
     instance_manager->set_instances(instances);
+
+    instance_manager2 = new InstanceManager(mesh_object2);
+    instance_manager2->create_buffer();
+    instance_manager2->set_instances(instances);
 
     float timeValue = glfwGetTime();
     float greenValue = (::sin(timeValue) / 2.0f) + 0.5f;
@@ -189,6 +199,11 @@ void loop(GLFWwindow* window) {
         glm::mat4 view = camera.get_view_matrix();
         glm::mat4 rot = glm::rotate(glm::mat4(1.f), greenValue, glm::vec3(0, 1, 0));
         shader_program->set_uniform_1f("scalar", greenValue);
+
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        //shader_program->render_instanced(*instance_manager2, camera);
         shader_program->render_instanced(*instance_manager, camera);
 
         glfwSwapBuffers(window);
@@ -198,6 +213,7 @@ void loop(GLFWwindow* window) {
 
 int main()
 {
+    std::cout <<FileInput::read_file("../assets/meshes/sphere.obj") << std::endl;
     initGLFW();
     GLFWwindow* window = initWindow();
     if (!window)

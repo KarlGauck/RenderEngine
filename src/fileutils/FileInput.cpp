@@ -6,15 +6,34 @@
 #include <fstream>
 #include <sstream>
 #include <stb_image.h>
+#include <iostream>
 #include "fileutils/FileInput.h"
+
+#include "stdextentions/StringUtils.h"
 
 string FileInput::read_file(const string &file_path) {
     ifstream stream(file_path);
-    string line;
     stringstream ss;
-    while (getline(stream, line)) {
+    /*
+    while (!ss.eof()) {
+        string s = stream.read();
+        std::cout << c;
+        if (c != '\r' && !ss.eof())
+            ss << c;
+    }
+    */
+    /*
+    for (string line; getline(stream, line);) {
+        ss.eof();
+        std::cout << StringUtils::remove_first(line, "\r") << std::endl;
         ss << line << "\n";
     }
+    //stream.seekg(0, ios::beg);
+    */
+    stream >> ss.rdbuf();
+    stream.close();
+    std::cout << "hey";
+    std::cout << ss.str() << std::endl;
     return ss.str();
 }
 

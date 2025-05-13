@@ -18,7 +18,7 @@ void main()
 {
     gl_Position = projection_matrix * view_matrix * i_transform[gl_InstanceID] * vec4(i_position, 1.0);
     vec4 pos = projection_matrix * view_matrix * i_transform[gl_InstanceID] * vec4(i_position, 1.0);
-    color = i_normal;
+    color = i_color;
     texture_coords = i_texture_coords;
     f_transform = i_transform[gl_InstanceID];
 }
