@@ -42,7 +42,7 @@ void main()
         vec3 light_color = lights[i].color.xyz;
 
         diffuse_light += max(dot(light_dir, real_normal), 0) * light_color;
-        vec3 reflect_dir = reflect(-light_dir, real_normal);
+        vec3 reflect_dir = reflect(light_dir, real_normal);
         specular_light += pow(max(dot(view_direction, reflect_dir), 0), shininess) * light_color;
 
         ambient_light += light_color;
