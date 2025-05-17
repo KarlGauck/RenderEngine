@@ -25,7 +25,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 unsigned int shaderProgram;
 
-MeshObject cat_mesh = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/cat.obj"));
+MeshObject cat_mesh = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/monkey.obj"));
 MeshObject light_mesh = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/test.obj"));
 InstanceManager *cat_instancer = nullptr;
 InstanceManager *light_instancer = nullptr;
@@ -39,6 +39,7 @@ void initGLFW() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 
     #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -71,8 +72,15 @@ int initGlad() {
     return 0;
 }
 
+void debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+                            const GLchar * message, const void * user_param) {
+    std::cout << "OpenGL Error: " << message << std::endl;
+}
+
 void initGLStructures() {
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(debug_message_callback, 0);
 
     cat_mesh.create_buffers();
     light_mesh.create_buffers();
@@ -81,7 +89,8 @@ void initGLStructures() {
         "../src/shaders/phong_fragment.glsl");
     scene_program->create_gl_program();
 
-    light_program = new ShaderProgram("", "");
+    light_program = new ShaderProgram("../src/shaders/lightsource_vertex.glsl",
+        "../src/shaders/lightsource_fragment.glsl");
     light_program->create_gl_program();
 
     TextureBehaviour texture_behaviour {
@@ -108,30 +117,57 @@ void initGLStructures() {
     light_mesh.set_texture(0, "t1", debris_texture);
     light_mesh.set_texture(1, "t2",void_texture);
 
-    int size = 1;
-    float scale = 0.1;
-    float spacing = 4;
-    float offset = spacing + scale * 2;
-    std::vector<Instance> instances(size*size*size);
-    for (int x = 0; x < size; x++) {
-        for (int y = 0; y < size; y++) {
-            for (int z = 0; z < size; z++) {
-               instances.push_back (
-                    Instance {
-                       glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(scale)), glm::vec3(x*offset, y*offset, z*offset))
-                    }
-               );
-            }
-        }
-    }
+    std::vector<Instance> light_instances {
+         Instance {
+            glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(0.05f)), glm::vec3(0.f))
+         },
+         Instance {
+            glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(0.05f)), glm::vec3(0.f))
+         }
+    };
 
-    cat_instancer = new InstanceManager(cat_mesh);
-    cat_instancer->create_buffer();
-    cat_instancer->set_instances(instances);
+    std::vector cat_instances = {
+        Instance {
+            glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(1.f)), glm::vec3(0.f))
+        },
+        /*
+        Instance {
+            glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(1.f)), glm::vec3(1.f))
+        },
+        Instance {
+            glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(1.f)), glm::vec3(2.f))
+        }
+        */
+    };
+
+    struct LightData {
+        glm::vec4 pos;
+        glm::vec4 color;
+    };
+
+    std::vector<LightData> lights {
+     {
+            glm::vec4(2.f, 0.f, 0.f, 0.f),
+            glm::vec4(1.f, 1.f, 1.f, 1.f)
+        },
+     {
+            glm::vec4(0.f, 2.f, 0.f, 0.f),
+            glm::vec4(1.f, 0.2f, 0.2f, 1.f)
+        }
+    };
+
+    std::cout << "create buffer" << std::endl;
+    light_buffer.create_buffer();
+    light_buffer.set_data(lights);
+    std::cout << "data loaded" << std::endl;
 
     light_instancer = new InstanceManager(light_mesh);
     light_instancer->create_buffer();
-    light_instancer->set_instances(instances);
+    light_instancer->set_instances(light_instances);
+
+    cat_instancer = new InstanceManager(cat_mesh);
+    cat_instancer->create_buffer();
+    cat_instancer->set_instances(cat_instances);
 
     float timeValue = glfwGetTime();
     float greenValue = (::sin(timeValue) / 2.0f) + 0.5f;
@@ -146,28 +182,18 @@ void initGLStructures() {
         1000.f,
         1
     };
-
-    light_buffer.create_buffer();
-    light_buffer.set_data(std::vector {0.0f, 1.f, 1.f});
 }
 
 void loop(GLFWwindow* window) {
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
-
-        float timeValue = glfwGetTime()*3;
-        float greenValue = (::sin(timeValue) / 2.0f) + 0.5f;
-
-        glm::mat4 view = camera.get_view_matrix();
-        glm::mat4 rot = glm::rotate(glm::mat4(1.f), greenValue, glm::vec3(0, 1, 0));
-        scene_program->set_uniform_1f("scalar", greenValue);
-        light_buffer.bind(1);
-
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //shader_program->render_instanced(*instance_manager2, camera);
+        light_buffer.bind(1);
+        light_program->render_instanced(*light_instancer, camera);
+        std::cout << light_instancer->get_instance_count() << std::endl;
         scene_program->render_instanced(*cat_instancer, camera);
 
         glfwSwapBuffers(window);
@@ -205,9 +231,9 @@ void processInput(GLFWwindow *window)
     float angular_vel = 0.02f;
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.position += vel*camera.get_view_direction();
+        camera.position += vel*camera.get_horizontal_view_direction();
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.position -= vel*camera.get_view_direction();
+        camera.position -= vel*camera.get_horizontal_view_direction();
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         camera.position -= vel*camera.get_horizontal_axis();
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
