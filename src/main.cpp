@@ -14,6 +14,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "rendering/ShaderStorageBuffer.h"
 #include "stdextentions/StringUtils.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -23,13 +24,14 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 unsigned int shaderProgram;
-unsigned int vao;
 
-MeshObject mesh_object = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/cat.obj"));
-MeshObject mesh_object2 = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/test.obj"));
-InstanceManager *instance_manager = nullptr;
-InstanceManager *instance_manager2 = nullptr;
-ShaderProgram *shader_program = nullptr;
+MeshObject cat_mesh = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/cat.obj"));
+MeshObject light_mesh = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/test.obj"));
+InstanceManager *cat_instancer = nullptr;
+InstanceManager *light_instancer = nullptr;
+ShaderStorageBuffer light_buffer;
+ShaderProgram *scene_program = nullptr;
+ShaderProgram *light_program = nullptr;
 Camera camera;
 
 void initGLFW() {
@@ -72,57 +74,15 @@ int initGlad() {
 void initGLStructures() {
     glEnable(GL_DEPTH_TEST);
 
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    cat_mesh.create_buffers();
+    light_mesh.create_buffers();
 
-    std::vector<Vertex> vertices {
-        Vertex(
-            0.5f,  0.5f, 0.5f, 0.5f,  0.5f, 0.5f, 1.f, 0.f, 0.f, 1.f, 1.f
-        ),
-        Vertex(
-            0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 1.f, 0.f, 0.f, 1.f, 0.f
-        ),
-        Vertex(
-            -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 1.f, 0.f, 0.f, 0.f, 0.f
-        ),
-        Vertex(
-            -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  1.f, 0.f, 0.f, 0.f, 1.f
-        ),
-        Vertex(
-            0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 1.f, 0.f, 0.f, 1.f, 1.f
-        ),
-        Vertex(
-            0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 1.f, 0.f, 0.f, 1.f, 0.f
-        ),
-        Vertex(
-            -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 1.f, 0.f, 0.f, 0.f, 0.f
-        ),
-        Vertex(
-            -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  1.f, 0.f, 0.f, 0.f, 1.f
-        ),
-    };
+    scene_program = new ShaderProgram("../src/shaders/phong_vertex.glsl",
+        "../src/shaders/phong_fragment.glsl");
+    scene_program->create_gl_program();
 
-    std::vector<unsigned int> indices {
-        0, 1, 3,
-        1, 2, 3,
-        0, 1, 4,
-        1, 5, 4,
-        1, 5, 2,
-        2, 5, 6,
-        0, 4, 3,
-        3, 4, 7,
-        2, 7, 6,
-        2, 3, 7,
-        4, 5, 6,
-        4, 6, 7
-    };
-
-    mesh_object.create_buffers();
-    mesh_object2.create_buffers();
-
-    shader_program = new ShaderProgram("../src/shaders/vertex.glsl",
-        "../src/shaders/fragment.glsl");
-    shader_program->create_gl_program();
+    light_program = new ShaderProgram("", "");
+    light_program->create_gl_program();
 
     TextureBehaviour texture_behaviour {
         REPEAT,
@@ -142,11 +102,11 @@ void initGLStructures() {
     debris_texture.load_texture(FileInput::read_texture("../assets/textures/ancient_debris.png"));
     debris_texture.set_texture_behaviour(texture_behaviour);
 
-    mesh_object.set_texture(0, "t1", debris_texture);
-    mesh_object.set_texture(1, "t2",void_texture);
+    cat_mesh.set_texture(0, "t1", debris_texture);
+    cat_mesh.set_texture(1, "t2",void_texture);
 
-    mesh_object2.set_texture(0, "t1", debris_texture);
-    mesh_object2.set_texture(1, "t2",void_texture);
+    light_mesh.set_texture(0, "t1", debris_texture);
+    light_mesh.set_texture(1, "t2",void_texture);
 
     int size = 1;
     float scale = 0.1;
@@ -165,17 +125,17 @@ void initGLStructures() {
         }
     }
 
-    instance_manager = new InstanceManager(mesh_object);
-    instance_manager->create_buffer();
-    instance_manager->set_instances(instances);
+    cat_instancer = new InstanceManager(cat_mesh);
+    cat_instancer->create_buffer();
+    cat_instancer->set_instances(instances);
 
-    instance_manager2 = new InstanceManager(mesh_object2);
-    instance_manager2->create_buffer();
-    instance_manager2->set_instances(instances);
+    light_instancer = new InstanceManager(light_mesh);
+    light_instancer->create_buffer();
+    light_instancer->set_instances(instances);
 
     float timeValue = glfwGetTime();
     float greenValue = (::sin(timeValue) / 2.0f) + 0.5f;
-    shader_program->set_uniform_4f("ourColor", glm::vec4(greenValue));
+    scene_program->set_uniform_4f("ourColor", glm::vec4(greenValue));
 
     camera = {
         glm::vec3(0, 0, 0),
@@ -186,6 +146,9 @@ void initGLStructures() {
         1000.f,
         1
     };
+
+    light_buffer.create_buffer();
+    light_buffer.set_data(std::vector {0.0f, 1.f, 1.f});
 }
 
 void loop(GLFWwindow* window) {
@@ -198,13 +161,14 @@ void loop(GLFWwindow* window) {
 
         glm::mat4 view = camera.get_view_matrix();
         glm::mat4 rot = glm::rotate(glm::mat4(1.f), greenValue, glm::vec3(0, 1, 0));
-        shader_program->set_uniform_1f("scalar", greenValue);
+        scene_program->set_uniform_1f("scalar", greenValue);
+        light_buffer.bind(1);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //shader_program->render_instanced(*instance_manager2, camera);
-        shader_program->render_instanced(*instance_manager, camera);
+        scene_program->render_instanced(*cat_instancer, camera);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
