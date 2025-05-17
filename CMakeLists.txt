@@ -31,6 +31,8 @@ add_executable(RenderEngine src/main.cpp lib/glad/src/glad.c
         src/fileutils/MeshParser.cpp
         include/stdextentions/StringUtils.h
         src/stdextentions/StringUtils.cpp
+        include/rendering/ShaderStorageBuffer.h
+        src/rendering/ShaderStorageBuffer.cpp
 )
 
 

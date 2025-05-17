@@ -16,8 +16,8 @@ void InstanceManager::set_instances(std::vector<Instance> &instances) {
 
     mesh_object.enable();
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, shader_storage_buffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Instance)*instances.size(), instances.data(), GL_DYNAMIC_DRAW);
-    glNamedBufferStorage(shader_storage_buffer, sizeof(Instance)*instances.size(), instances.data(), GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT);
+//  glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Instance)*instances.size(), instances.data(), GL_DYNAMIC_DRAW);
+    glNamedBufferStorage(shader_storage_buffer, sizeof(Instance)*instances.size(), instances.data(), GL_DYNAMIC_STORAGE_BIT);
     bind();
     mesh_object.disable();
 }

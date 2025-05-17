@@ -40,9 +40,6 @@ void ShaderProgram::create_gl_program() {
 }
 
 void ShaderProgram::render(MeshObject& mesh_object, Camera &camera) {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glUseProgram(program);
     mesh_object.load_textures(program);
     mesh_object.enable();
@@ -50,9 +47,6 @@ void ShaderProgram::render(MeshObject& mesh_object, Camera &camera) {
 }
 
 void ShaderProgram::render_instanced(InstanceManager& instance_manager, Camera &camera) {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glUseProgram(program);
     instance_manager.get_mesh_object().load_textures(program);
     instance_manager.get_mesh_object().enable();
