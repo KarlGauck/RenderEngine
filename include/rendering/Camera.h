@@ -16,4 +16,5 @@ public:
 
     glm::vec3 get_horizontal_axis();
     glm::vec3 get_view_direction();
+    glm::vec3 get_horizontal_view_direction();
 };

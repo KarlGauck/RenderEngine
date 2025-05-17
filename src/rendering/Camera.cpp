@@ -27,8 +27,11 @@ glm::vec3 Camera::get_horizontal_axis() {
     return glm::vec3(result.x, result.y, result.z);
 }
 
-glm::vec3 Camera::get_view_direction() {
+glm::vec3 Camera::get_horizontal_view_direction() {
     return glm::cross(glm::vec3(0, 1, 0), get_horizontal_axis());
 }
 
-
+glm::vec3 Camera::get_view_direction() {
+    glm::vec4 head = glm::rotate(glm::mat4(1), pitch,  get_horizontal_axis()) * glm::vec4(0, 1, 0, 0);
+    return glm::cross(glm::vec3(head.x, head.y, head.z), get_horizontal_axis());
+}

@@ -32,8 +32,6 @@ string FileInput::read_file(const string &file_path) {
     */
     stream >> ss.rdbuf();
     stream.close();
-    std::cout << "hey";
-    std::cout << ss.str() << std::endl;
     return ss.str();
 }
 

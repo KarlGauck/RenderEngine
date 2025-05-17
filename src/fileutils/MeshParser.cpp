@@ -54,7 +54,6 @@ MeshObject MeshParser::parse_wavefront_obj(std::string data) {
 
     std::vector lines = StringUtils::split(data, "\n");
     std::map<std::string, unsigned int> element_indices;  // which vertex (calculatet from input) is at which position in the generated meshobject
-    std::cout << data << std::endl;
     for (std::string line: lines) {
         if (line.find("v ") == 0) {
             positions.push_back(parse_vertex_position(line));
@@ -66,7 +65,6 @@ MeshObject MeshParser::parse_wavefront_obj(std::string data) {
         if (line.find("f ") == 0) {
             std::string raw = StringUtils::remove_first(line, "f ");
             std::vector data = StringUtils::split(raw, " ");
-            std::cout << "face" << std::endl;
             for (int element_index = 0; element_index < 3; element_index++) {
                 if (element_index >= data.size())
                     break;
@@ -86,7 +84,6 @@ MeshObject MeshParser::parse_wavefront_obj(std::string data) {
             }
         }
     }
-    std::cout << vertices.size() << std::endl;
 
     return {vertices, indices};
 }
