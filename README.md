@@ -16,7 +16,8 @@ This is a basic render engine with 3d capabilities which will serve as a basis f
 Currently, there is no way to create the window, since all of this functionality is hardcoded into main.
 
 The steps to get a functional image are the following
-1) Create a Shaderprogram with the respective fragment and vertexshaders.
+#### The first triangle (and fully lighted and textured mesh :))
+1) Create a shaderprogram with the respective fragment and vertexshaders.
 ```cpp
 ShaderProgram program {"vertex_path/vertex.glsl", "fragment_path/fragment.glsl"};
 program.create_gl_program();
@@ -68,5 +69,77 @@ program.render(mesh, camera);
 glfwSwapBuffers(window);
 ```
 
-TODO: How to instanced rendering
-TODO: How to ssbos
+#### Instanced Rendering
+1) Create an instancemanager
+```cpp
+InstanceManager instancer = new InstanceManager(mesh);
+instancer.create_buffer();
+```
+
+2) Create an instance vector of model matrices
+```cpp
+std::vector instances = {
+    Instance {
+        glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(1.f)), glm::vec3(0.f))
+    },
+    Instance {
+        glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(1.f)), glm::vec3(1.f))
+    }
+};
+
+instancer.set_instances(instances);
+```
+
+3) Render all of the instances
+```cpp
+glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+program.render_instanced(instances, camera);
+glfwSwapBuffers(window);
+```
+
+#### Using SSBOs
+Create some struct to upload or upload any inplace data structure such
+as numbers, arrays etc. Just make sure, it works with the memory-structure you specify in your shader (such as std430).
+```cpp
+struct Data {
+    float value1;
+    float value2;
+};
+
+std::vector<Data> data {
+    {
+        0.4f,
+        2.5f
+    },
+    {
+        10.f
+        0.f
+    }
+};
+
+ShaderStorageBuffer buffer;
+buffer.create_buffer();
+buffer.set_data(data);
+```
+
+Before rendering, bind the buffer to the correct location.
+```cpp
+buffer.bind(1);
+program.render...;
+```
+
+Make sure to include the same structures inside the respective shader.
+```glsl
+struct Data {
+    float value1;
+    float value2;
+};
+
+// make sure, the binding index matches the index in your c++ code.
+layout(binding = 1, std430) readonly buffer ssbo1 {
+    Data data[];
+};
+
+// inside shader.glsl
+```
