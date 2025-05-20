@@ -143,3 +143,7 @@ layout(binding = 1, std430) readonly buffer ssbo1 {
 
 // inside shader.glsl
 ```
+
+## Demos / Examples:
+![image](https://github.com/user-attachments/assets/82055dca-0328-4ac4-8512-d393370aee7c)
+
