@@ -18,19 +18,19 @@ Currently, there is no way to create the window, since all of this functionality
 The steps to get a functional image are the following
 #### The first triangle (and fully lighted and textured mesh :))
 1) Create a shaderprogram with the respective fragment and vertexshaders.
-```cpp
+```c
 ShaderProgram program {"vertex_path/vertex.glsl", "fragment_path/fragment.glsl"};
 program.create_gl_program();
 ```
 2) Create or load a mesh and store it inside a meshobject
-```cpp
+```c
 // you can also specify the vertices and indices manually
 MeshObject mesh = MeshParser::parse_wavefront_obj(FileInput::read_file("mesh_path/mesh.obj"));
 mesh.create_buffers();
 ```
 
 3) Create texturedata and behaviour (optional)
-```cpp
+```c
 TextureBehaviour texture_behaviour {
     REPEAT,
     REPEAT,
@@ -49,7 +49,7 @@ texture.set_texture_behaviour(texture_behaviour);
 mesh.set_texture(0, "texture", texture);
 ```
 4) Create a camera
-```cpp
+```c
 camera = {
     glm::vec3(0, 0, 0),   // position
     glm::radians(45.f),   // pitch
@@ -62,7 +62,7 @@ camera = {
 ```
 
 5) Render the mesh
-```cpp
+```c
 glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 program.render(mesh, camera);
@@ -71,13 +71,13 @@ glfwSwapBuffers(window);
 
 #### Instanced Rendering
 1) Create an instancemanager
-```cpp
-InstanceManager instancer = new InstanceManager(mesh);
+```c
+InstanceManager instancer(mesh);
 instancer.create_buffer();
 ```
 
 2) Create an instance vector of model matrices
-```cpp
+```c
 std::vector instances = {
     Instance {
         glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(1.f)), glm::vec3(0.f))
@@ -91,7 +91,7 @@ instancer.set_instances(instances);
 ```
 
 3) Render all of the instances
-```cpp
+```c
 glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 program.render_instanced(instances, camera);
@@ -101,7 +101,7 @@ glfwSwapBuffers(window);
 #### Using SSBOs
 Create some struct to upload or upload any inplace data structure such
 as numbers, arrays etc. Just make sure, it works with the memory-structure you specify in your shader (such as std430).
-```cpp
+```c
 struct Data {
     float value1;
     float value2;
@@ -124,7 +124,7 @@ buffer.set_data(data);
 ```
 
 Before rendering, bind the buffer to the correct location.
-```cpp
+```c
 buffer.bind(1);
 program.render...;
 ```
