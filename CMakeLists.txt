@@ -33,6 +33,7 @@ add_executable(RenderEngine src/main.cpp lib/glad/src/glad.c
         src/stdextentions/StringUtils.cpp
         include/rendering/ShaderStorageBuffer.h
         src/rendering/ShaderStorageBuffer.cpp
+        include/rendering/Window.h
 )
 
 
