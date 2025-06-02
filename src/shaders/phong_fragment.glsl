@@ -24,7 +24,7 @@ layout(binding = 1, std430) readonly buffer ssbo2 {
 
 void main()
 {
-    float ambient_strength = 0.1;
+    float ambient_strength = 0.3;
     float specular_strength = 0.5;
     float shininess = 32;
 

@@ -25,7 +25,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 unsigned int shaderProgram;
 
-MeshObject cat_mesh = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/monkey.obj"));
+MeshObject cat_mesh = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/blender_monkey.obj"));
 MeshObject light_mesh = MeshParser::parse_wavefront_obj(FileInput::read_file("../assets/meshes/test.obj"));
 InstanceManager *cat_instancer = nullptr;
 InstanceManager *light_instancer = nullptr;
@@ -156,10 +156,8 @@ void initGLStructures() {
         }
     };
 
-    std::cout << "create buffer" << std::endl;
     light_buffer.create_buffer();
     light_buffer.set_data(lights);
-    std::cout << "data loaded" << std::endl;
 
     light_instancer = new InstanceManager(light_mesh);
     light_instancer->create_buffer();
@@ -193,7 +191,6 @@ void loop(GLFWwindow* window) {
 
         light_buffer.bind(1);
         light_program->render_instanced(*light_instancer, camera);
-        std::cout << light_instancer->get_instance_count() << std::endl;
         scene_program->render_instanced(*cat_instancer, camera);
 
         glfwSwapBuffers(window);
@@ -203,7 +200,6 @@ void loop(GLFWwindow* window) {
 
 int main()
 {
-    std::cout <<FileInput::read_file("../assets/meshes/sphere.obj") << std::endl;
     initGLFW();
     GLFWwindow* window = initWindow();
     if (!window)
