@@ -65,9 +65,14 @@ MeshObject MeshParser::parse_wavefront_obj(std::string data) {
         if (line.find("f ") == 0) {
             std::string raw = StringUtils::remove_first(line, "f ");
             std::vector data = StringUtils::split(raw, " ");
-            for (int element_index = 0; element_index < 3; element_index++) {
+            int index_count = data.size();
+            for (int element_index = 0; element_index < index_count; element_index++) {
                 if (element_index >= data.size())
                     break;
+                if (element_index == 3) {
+                    indices.push_back(element_indices[data[element_index-3]]);
+                    indices.push_back(element_indices[data[element_index-1]]);
+                }
                 if (element_indices.contains(data[element_index]))
                     indices.push_back(element_indices[data[element_index]]);
                 else {

@@ -60,7 +60,6 @@ void ShaderProgram::render_instanced(InstanceManager& instance_manager, Camera &
     set_uniform_mat4f("projection_matrix", camera.get_projection_matrix());
     set_uniform_3f("view_position", camera.position);
 
-    std::cout << " instances : " << instance_manager.get_instance_count() << std::endl;
     glDrawElementsInstanced(GL_TRIANGLES, instance_manager.get_mesh_object().get_index_count(),  GL_UNSIGNED_INT, 0, instance_manager.get_instance_count());
 }
 
