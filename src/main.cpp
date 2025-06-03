@@ -66,8 +66,6 @@ int initGlad() {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
-
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     return 0;
 }
@@ -201,6 +199,7 @@ void loop(GLFWwindow* window) {
 int main()
 {
     initGLFW();
+
     GLFWwindow* window = initWindow();
     if (!window)
         return -1;
@@ -260,10 +259,3 @@ void processInput(GLFWwindow *window)
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    // make sure the viewport matches the new window dimensions; note that width and
-    // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
-    camera.aspect_ratio = (float)width/height;
-}
