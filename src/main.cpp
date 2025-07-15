@@ -15,6 +15,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "rendering/ShaderStorageBuffer.h"
+#include "rendering/Window.h"
 #include "stdextentions/StringUtils.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -34,18 +35,6 @@ ShaderProgram *scene_program = nullptr;
 ShaderProgram *light_program = nullptr;
 Camera camera;
 
-void initGLFW() {
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
-
-    #ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    #endif
-}
-
 GLFWwindow* initWindow() {
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
@@ -55,30 +44,13 @@ GLFWwindow* initWindow() {
         return nullptr;
     }
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     return window;
-}
-
-int initGlad() {
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    return 0;
-}
-
-void debug_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-                            const GLchar * message, const void * user_param) {
-    std::cout << "OpenGL Error: " << message << std::endl;
 }
 
 void initGLStructures() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(debug_message_callback, 0);
 
     cat_mesh.create_buffers();
     light_mesh.create_buffers();
@@ -128,14 +100,6 @@ void initGLStructures() {
         Instance {
             glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(1.f)), glm::vec3(0.f))
         },
-        /*
-        Instance {
-            glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(1.f)), glm::vec3(1.f))
-        },
-        Instance {
-            glm::translate(glm::scale(glm::mat4(1.f), glm::vec3(1.f)), glm::vec3(2.f))
-        }
-        */
     };
 
     struct LightData {
@@ -180,36 +144,25 @@ void initGLStructures() {
     };
 }
 
-void loop(GLFWwindow* window) {
-    while (!glfwWindowShouldClose(window))
-    {
-        processInput(window);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        light_buffer.bind(1);
-        light_program->render_instanced(*light_instancer, camera);
-        scene_program->render_instanced(*cat_instancer, camera);
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
+void loop() {
+    light_buffer.bind(1);
+    light_program->render_instanced(*light_instancer, camera);
+    scene_program->render_instanced(*cat_instancer, camera);
 }
 
 int main()
 {
-    initGLFW();
-
-    GLFWwindow* window = initWindow();
-    if (!window)
-        return -1;
-
-    if (initGlad() == -1)
-        return -1;
+    Window win;
+    win.process_input = processInput;
+    win.loop = loop;
+    win.width = SCR_WIDTH;
+    win.height = SCR_HEIGHT;
+    win.init_graphics();
+    win.create_window();
 
     initGLStructures();
 
-    loop(window);
+    win.start_loop();
 
     glfwTerminate();
     return 0;
@@ -224,6 +177,8 @@ void processInput(GLFWwindow *window)
 
     float vel = 0.02f;
     float angular_vel = 0.02f;
+
+    std::cout << window << std::endl;
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.position += vel*camera.get_horizontal_view_direction();
@@ -250,12 +205,6 @@ void processInput(GLFWwindow *window)
     else
         camera.field_of_view = glm::radians(45.f);
 
-//    glm::vec3 pos = glm::vec3(sin(angle)*radius, camera.position.y, cos(angle)*radius);
-//    camera.position = pos;
-//    camera.yaw = -angle;
-//    std::cout << camera.position.x << std::endl;
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
 
